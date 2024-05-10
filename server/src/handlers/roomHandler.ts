@@ -1,5 +1,8 @@
 import {Socket} from "socket.io";
 import {v4 as UUIDv4} from "uuid";
+import IRoomParams from "../interfaces/IRoomParams"
+
+const rooms : Record<string, string[]> = {};
 
 const roomHandler = (socket: Socket) =>{
 
@@ -8,10 +11,15 @@ const roomHandler = (socket: Socket) =>{
         console.log("room created with id..", roomid);
         socket.join(roomid);
         socket.emit("room-created", {roomid});
+        rooms[roomid] = [];
     };
 
-    const joinedRoom = ({roomid}: {roomid: string})=>{
-        console.log("new user joined room",{roomid}, "with id", socket.id);
+    const joinedRoom = ({roomid, peerid}: IRoomParams)=>{
+        if(rooms[roomid]){
+            rooms[roomid].push(peerid);
+            console.log("new user joined room",roomid, "with id", peerid);
+            socket.join(roomid);
+        }
     };
 
     socket.on("create-room", createRoom);

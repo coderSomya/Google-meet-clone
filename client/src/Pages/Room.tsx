@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom"; 
-import {useContext, useEffect} from "react";
+import {useContext, useEffect, useState} from "react";
 import {SocketContext} from "../Context/SocketContext"
 
 const Room: React.FC = ()=>{
@@ -7,12 +7,18 @@ const Room: React.FC = ()=>{
     const {id} = useParams();
     const {socket, user} = useContext(SocketContext);
 
+
+
     useEffect(()=>{
-        if(user) socket.emit("joined-room", {roomid:id, peerid: user._id});
+        if(user) {
+            socket.emit("joined-room", {roomid:id, peerid: user._id});
+
+        }
+
     },[id, user, socket])
     return (
         <div>
-            Rooom : {id}
+            <h1>Rooom : {id}</h1>
         </div>
     )
 }

@@ -21,17 +21,26 @@ interface props{
 export const SocketProvider: React.FC<props> = ({children})=>{
 
     const navigate = useNavigate();
-
     const [user, setUser] = useState<Peer>();
+
+    const fetchParticipantList = ({roomid, participants}: {roomid: string, participants: string[]})=>{
+        console.log(`participants in room ${roomid}are ${[participants]}`);
+    } 
+
+    const enterRoom = ({roomid}: {roomid: string})=>{
+        navigate(`/rooms/${roomid}`);
+    }
 
     useEffect(()=>{
         const userid = UUIDv4();
         const newpeer = new Peer(userid);
         setUser(newpeer);
-        const enterRoom = ({roomid}: {roomid: string})=>{
-            navigate(`/rooms/${roomid}`);
-        }
-        socket.on("room-created", enterRoom)
+
+
+
+        socket.on("room-created", enterRoom);
+     
+        socket.on("get-users", fetchParticipantList);
     }, [])
 
     return (

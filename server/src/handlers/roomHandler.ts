@@ -1,6 +1,6 @@
 import {Socket} from "socket.io";
 import {v4 as UUIDv4} from "uuid";
-import IRoomParams from "../interfaces/IRoomParams"
+import IRoomParams from "../interfaces/IRoomParams";
 
 const rooms : Record<string, string[]> = {};
 
@@ -19,6 +19,11 @@ const roomHandler = (socket: Socket) =>{
             rooms[roomid].push(peerid);
             console.log("new user joined room",roomid, "with id", peerid);
             socket.join(roomid);
+
+            socket.emit("get-users",{
+                roomid,
+                participants: rooms[roomid]
+            });
         }
     };
 

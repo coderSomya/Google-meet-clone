@@ -1,11 +1,12 @@
 import {useParams} from "react-router-dom"; 
 import {useContext, useEffect, useState} from "react";
 import {SocketContext} from "../Context/SocketContext"
+import UserFeedPlayer from "../Components/UserFeedPlayer";
 
 const Room: React.FC = ()=>{
 
     const {id} = useParams();
-    const {socket, user} = useContext(SocketContext);
+    const {socket, user, stream} = useContext(SocketContext);
 
 
 
@@ -19,6 +20,7 @@ const Room: React.FC = ()=>{
     return (
         <div>
             <h1>Rooom : {id}</h1>
+            <UserFeedPlayer stream={stream}/>
         </div>
     )
 }

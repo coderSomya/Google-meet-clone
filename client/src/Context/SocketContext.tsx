@@ -1,9 +1,11 @@
 import SocketIoClient from "socket.io-client";
 import {createContext} from "react";
 import {useNavigate} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useReducer} from "react";
 import Peer from "peerjs";
 import {v4 as UUIDv4} from "uuid";
+import {peerReducer} from "../Reducers/peerReducer.ts";
+import {addPeerAction} from "../Actions/peerAction.ts";
 
 const ws = 'http://localhost:8000';
 
@@ -23,6 +25,8 @@ export const SocketProvider: React.FC<props> = ({children})=>{
     const navigate = useNavigate();
     const [user, setUser] = useState<Peer>();
     const [stream, setStream] = useState<MediaStream>();
+
+    const [peers, dispatch] = useReducer(peerReducer, {});
 
     const fetchParticipantList = ({roomid, participants}: {roomid: string, participants: string[]})=>{
         console.log(`participants in room ${roomid}are ${[participants]}`);
@@ -54,8 +58,30 @@ export const SocketProvider: React.FC<props> = ({children})=>{
         socket.on("get-users", fetchParticipantList);
     }, [])
 
+
+    useEffect(()=>{
+        if(!user || !stream) return;
+    
+        socket.on("user-joined", ({peerid})=>{
+            const call = user.call(peerid, stream);
+            call.on("stream", ()=>{
+                dispatch(addPeerAction(peerid, stream));
+           })
+        }) 
+    
+
+        user.on("call", (call)=>{
+            call.answer(stream);
+            call.on("stream", ()=>{
+                dispatch(addPeerAction(call.peer, stream));
+            })
+        })
+
+
+        socket.emit("ready");
+    }, [user, stream])
     return (
-        <SocketContext.Provider value={{socket, user, stream}}>
+        <SocketContext.Provider value={{socket, user, stream, peers}}>
             {children}
         </SocketContext.Provider>
     )

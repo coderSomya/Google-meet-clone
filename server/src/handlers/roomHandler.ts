@@ -24,6 +24,10 @@ const roomHandler = (socket: Socket) =>{
                 roomid,
                 participants: rooms[roomid]
             });
+
+            socket.on("ready", ()=>{
+                socket.to(roomid).emit("user-joined", {peerid});
+            });
         }
     };
 
